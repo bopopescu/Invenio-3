@@ -1,0 +1,15 @@
+
+.windowifyControlToolbar{
+    width: 100%;
+    overflow: hidden;
+}
+
+.windowifyWindowContent{
+    overflow: auto;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.windowifyHiddenContent{
+    display: none !important;
+}

@@ -1,94 +1,88 @@
 <html>
-  <head>
-    <!-- including jQuery related modules -->
-    <link rel="stylesheet" type="text/css" href="css/imgareaselect-default.css"/>
-    <link rel="stylesheet" href="jquery/jquery.ui.all.css">
-    <script type="text/javascript" src="jquery/jquery-1.5.js"></script>
-    <script src="jquery/jquery.ui.core.js"></script>
-    <script src="jquery/jquery.ui.widget.js"></script>
-    <script src="jquery/jquery.ui.mouse.js"></script>
-    <script src="jquery/jquery.ui.draggable.js"></script>
-    <script src="jquery/jquery.ui.position.js"></script>
-    <script src="jquery/jquery.ui.resizable.js"></script>
-    <script src="jquery/jquery.ui.dialog.js"></script>
+    <head>
+        <!-- including jQuery related modules -->
+        <link rel="stylesheet" type="text/css" href="/js/addons/imgareaselect/imgareaselect-default.css"/>
+        <link rel="stylesheet" href="jquery/jquery.ui.all.css">
+        <script type="text/javascript" src="/js/jquery.min.js"></script>
+        <script type="text/javascript" src="/js/jquery-ui.min.js"></script>
+        <script type="text/javascript" src="/js/addons/imgareaselect/jquery.imgareaselect.min.js"></script>
 
-    <script src="jquery/jQueryRotate.2.0.js"></script>
+        <!-- including Inspire related modules -->
+        <script type="text/javascript" src="js/bibfig.handlers.js"></script>
+        <script type="text/javascript" src="js/bibfig.data.js"></script>
+        <script type="text/javascript" src="js/bibfig.selector.js"></script>
+        <script type="text/javascript" src="js/bibfig.pagesSelector.js"></script>
+        <script type="text/javascript" src="js/bibfig.imageView.js"></script>
+        <script type="text/javascript" src="js/bibfig.figureControlsArea.js"></script>
+        <script type="text/javascript" src="js/bibfig.pageViewArea.js"></script>
+        <script type="text/javascript" src="js/bibfig.windowifyer.js"></script>
+        <script type="text/javascript" src="js/bibfig.buslogger.js"></script>
+        <script type="text/javascript" src="js/bibfig.figuresSelector.js"></script>
+        <script type="text/javascript" src="js/bibfig.fractionDisplay.js"></script>
+        <script type="text/javascript" src="js/bibfig.graphicalOps.js"></script>
 
-    <script type="text/javascript" src="jquery/jquery.ui.slider.js"></script>
-    <script type="text/javascript" src="scripts/jquery.imgareaselect.pack.js"></script>
+        <script type="text/javascript" src="js/bibfig.main.js"></script>
 
+        <link rel="stylesheet" type="text/css" href="basicStyles.css"/>
+        <link rel="stylesheet" type="text/css" href="selecting.css"/>
+        <script type = "text/javascript">
+            var recid = 21;
+            var pdfDocument = new PdfDocument();
+            var eventsBus = new EventsBus();
+        </script>
+    </head>
 
-    <!-- data -->
-    <script type="text/javascript" src="data/describeData.js"></script>
+    <body>
+        <div class="mainContainerLayer">
+            <div class="figurePlotsSelector" id="figuresSelector">
+                <div id="figureMiniaturesSelector" class="figureMiniaturesPlaceholder">
+                </div>
+                <input type="button" value="Create new figure" id="btnNewPlot">
+            </div>
 
-    <!-- including Inspire related modules -->
-    <script type="text/javascript" src="handlers.js"></script>
-    <script type="text/javascript" src="data.js"></script>
-    <script type="text/javascript" src="selector.js"></script>
-    <script type="text/javascript" src="pagesSelector.js"></script>
-    <script type="text/javascript" src="imageView.js"></script>
-    <script type="text/javascript" src="figureControlsArea.js"></script>
-    <script type="text/javascript" src="pageViewArea.js"></script>
-    <script type="text/javascript" src="windowifyer.js"></script>
-    <script type="text/javascript" src="buslogger.js"></script>
-    <script type="text/javascript" src="figuresSelector.js"></script>
-    <script type="text/javascript" src="fractionDisplay.js"></script>
-    <script type="text/javascript" src="graphicalOps.js"></script>
+            <div class="documentPageSelector" id="pagesSelectorLayer"></div>
 
-    <script type="text/javascript" src="main.js"></script>
+            <div class="pageView" id="pageViewArea">
+            </div>
 
-    <link rel="stylesheet" type="text/css" href="basicStyles.css"/>
-    <link rel="stylesheet" type="text/css" href="selecting.css"/>
-  </head>
+            <div class="figureControls" id="figureControlsLayer">
+                <h2>Current figure:</h2>
 
-  <body>
-    <div class="mainContainerLayer">
-      <div class="figurePlotsSelector" id="figuresSelector">
-	<div id="figureMiniaturesSelector" class="figureMiniaturesPlaceholder">
-	</div>
-	<input type="button" value="Create new figure" id="btnNewPlot">
-      </div>
+                <div>
+                    Figure image:
+                    <div id="figurePreviewPalceholder" class="previewPlaceholder"></div>
+                    Figure coordinates: <p id="lblFigureBoundary"></p>
+                    <input type="button" id="btnSelectFigureContent" value="Select the boundary"/>
+                </div>
+                <div>
+                    <input type="button" id="btnSelectFigureCaption" value="Select caption" />
+                    Caption text:
+                    <textarea id="figureCaptionText" class="captionTextInput">TODO: Text should be automaticaly extracted from the selected caption and should be inputed into this field
+                    </textarea>
+                    Caption preview:
+                    <div id="captionPreviewPlaceholder" class="previewPlaceholder"></div>
+                    Caption coordinates:
+                    <p id="lblCaptionBoundary"></p>
+                </div>
+                <br>
+                <div>
+                    <input type="button" value="Remove figure" id="btnRemoveFigure" />
+                </div>
+                <div>
+                    <input type="button" value="Save" id="btnSave" />
+                </div>
+            </div>
+            <div id="busLog"></div>
 
-      <div class="documentPageSelector" id="pagesSelectorLayer"></div>
+        </div>
 
-      <div class="pageView" id="pageViewArea">
-      </div>
-
-      <div class="figureControls" id="figureControlsLayer">
-	<h2>Current figure:</h2>
-
-	<div>
-	  Figure image:
-	  <div id="figurePreviewPalceholder" class="previewPlaceholder"></div>
-	  Figure coordinates: <p id="lblFigureBoundary"></p>
-	  <input type="button" id="btnSelectFigureContent" value="Select the boundary"/>
-	</div>
-	<div>
-	  <input type="button" id="btnSelectFigureCaption" value="Select caption"></input>
-	  Caption text:
-	  <textarea id="figureCaptionText" class="captionTextInput">TODO: Text should be automaticaly extracted from the selected caption and should be inputed into this field
-	  </textarea>
-	  Caption preview:
-	  <div id="captionPreviewPlaceholder" class="previewPlaceholder"></div>
-	  Caption coordinates:
-	  <p id="lblCaptionBoundary"/>
-	</div>
-	<br>
-	<div>
-	  <input type="button" value="Remove figure" id="btnRemoveFigure"></input>
-	</div>
-      </div>
-      <div id="busLog"></div>
-
-    </div>
-
-    <br>
-    <div id="eventsBusLog" class="logLayer">
-      <div style="display: table-row;">
-	<div style="display: table-cell;"><b>Event name</b></div>
-	<div style="display: table-cell;"><b>Event subject</b></div>
-	<div style="display: table-cell;"><b>Event arguments</b></div>
-      </div>
-    </div>
-  </body>
+        <br>
+        <div id="eventsBusLog" class="logLayer">
+            <div style="display: table-row;">
+                <div style="display: table-cell;"><b>Event name</b></div>
+                <div style="display: table-cell;"><b>Event subject</b></div>
+                <div style="display: table-cell;"><b>Event arguments</b></div>
+            </div>
+        </div>
+    </body>
 </html>

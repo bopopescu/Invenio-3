@@ -9,23 +9,12 @@
 ## Invenio is distributed in the hope that it will be useful, but
 ## WITHOUT ANY WARRANTY; without even the implied warranty of
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-## General Public License for more details.
+## General Public License for more details.  
 ##
 ## You should have received a copy of the GNU General Public License
 ## along with Invenio; if not, write to the Free Software Foundation, Inc.,
 ## 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 
-pylibdir = $(libdir)/python/invenio
+SUBDIRS = js css img
 
-pylib_DATA = bibfigure_webinterface.py \
-	     bibfigure_captionextractor.py \
-	     bibfigure_similarity.py \
-	     bibfigure_config.py \
-	     bibfigure_template.py \
-	     bibfigure.py \
-	     bibfigure_merge.py \
-	     bibfigure_utils.py \
-	     bibfigure_api.py
-
-CLEANFILES = *~ *.tmp *.pyc
-EXTRA_DIST = $(pylib_DATA)
+CLEANFILES = *~

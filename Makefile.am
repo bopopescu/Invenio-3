@@ -160,7 +160,7 @@ install-jquery-plugins:
 	wget http://code.jquery.com/jquery-1.7.1.min.js && \
 	mv jquery-1.7.1.min.js jquery.min.js && \
 	wget http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.17/jquery-ui.min.js && \
-        wget http://invenio-software.org/download/jquery/v1.5/js/jquery.jeditable.mini.js && \
+	wget http://invenio-software.org/download/jquery/v1.5/js/jquery.jeditable.mini.js && \
 	wget https://raw.github.com/malsup/form/master/jquery.form.js --no-check-certificate && \
 	wget http://jquery-multifile-plugin.googlecode.com/svn/trunk/jquery.MultiFile.pack.js && \
 	wget -O jquery.tablesorter.zip http://invenio-software.org/download/jquery/jquery.tablesorter.20111208.zip && \
@@ -199,13 +199,23 @@ install-jquery-plugins:
 	wget --no-check-certificate -O datatables_jquery-ui.css https://github.com/DataTables/DataTables/raw/master/media/css/demo_table_jui.css && \
 	wget http://jquery-ui.googlecode.com/svn/tags/1.8.17/themes/redmond/jquery-ui.css && \
 	wget http://jquery-ui.googlecode.com/svn/tags/1.8.17/demos/images/calendar.gif && \
-	wget -r -np -nH --cut-dirs=5 -A "png" http://jquery-ui.googlecode.com/svn/tags/1.8.17/themes/redmond/images/)
-	@echo "***********************************************************"
-	@echo "** The jQuery plugins were successfully installed.       **"
+	wget -r -np -nH --cut-dirs=5 -A "png" http://jquery-ui.googlecode.com/svn/tags/1.8.17/themes/redmond/images/ && \
+	mkdir -p ${prefix}/var/www/js/addons && \
+	cd ${prefix}/var/www/js/addons && \
+	wget http://odyniec.net/projects/imgareaselect/jquery.imgareaselect-0.9.8.zip && \
+	unzip -u jquery.imgareaselect-0.9.8.zip && \
+	rm jquery.imgareaselect-0.9.8.zip && \
+	mkdir -p imgareaselect && \
+	mv jquery.imgareaselect-0.9.8/scripts/jquery.imgareaselect.min.js ./imgareaselect/ && \
+	mv jquery.imgareaselect-0.9.8/css/* ./imgareaselect && \
+	rm -r jquery.imgareaselect-0.9.8/ ) && \
+	@echo "***********************************************************" && \
+	@echo "** The jQuery plugins were successfully installed.       **" && \
 	@echo "***********************************************************"
 
 uninstall-jquery-plugins:
 	(cd ${prefix}/var/www/js && \
+	rm -rf ${prefix}/var/www/js/addons/imgareaselect && \
 	rm -f jquery.min.js && \
 	rm -f jquery.MultiFile.pack.js && \
 	rm -f jquery.jeditable.mini.js && \
@@ -222,12 +232,12 @@ uninstall-jquery-plugins:
 	rm -f jquery.dataTables.min.js && \
 	rm -f ui.core.js && \
 	rm -f jquery.bookmark.min.js && \
-        rm -f jquery.hotkeys.js && \
-        rm -f jquery.tablesorter.min.js && \
-        rm -f jquery-ui-1.7.3.custom.min.js && \
-        rm -f jquery.metadata.js && \
-        rm -f jquery-latest.js && \
-        rm -f jquery-ui.min.js)
+	rm -f jquery.hotkeys.js && \
+	rm -f jquery.tablesorter.min.js && \
+	rm -f jquery-ui-1.7.3.custom.min.js && \
+	rm -f jquery.metadata.js && \
+	rm -f jquery-latest.js && \
+	rm -f jquery-ui.min.js)
 	(cd ${prefix}/var/www/img && \
 	rm -f cancel.png uploadify.css uploadify.swf uploadify.allglyphs.swf uploadify.fla && \
 	rm -f datatables_jquery-ui.css \
@@ -305,18 +315,24 @@ install-solrutils:
 	cd $(prefix)/lib && \
 	if test -d apache-solr*; then echo A solr directory already exists in `pwd` . \
 	Please remove it manually, if you are sure it is not needed; exit 2; fi ; \
+<<<<<<< HEAD
         if test -f apache-solr*; then echo solr tarball already exists in `pwd` . \
         Please remove it manually.; exit 2; fi ; \
 	wget http://archive.apache.org/dist/lucene/solr/3.1.0/apache-solr-3.1.0.tgz && \
+=======
+	if test -f apache-solr*; then echo solr tarball already exists in `pwd` . \
+	Please remove it manually.; exit 2; fi ; \
+	wget http://www.apache.org/dist//lucene/solr/3.1.0/apache-solr-3.1.0.tgz && \
+>>>>>>> bba98cb... BibFigure: The manual fiugres extractor backend and frontend improvements
 	tar -xzf apache-solr-3.1.0.tgz && \
 	rm apache-solr-3.1.0.tgz
 	cd $(solrdir)/contrib/ ;\
 	wget http://mirrors.ibiblio.org/pub/mirrors/maven2/com/jcraft/jzlib/1.0.7/jzlib-1.0.7.jar && \
 	cd $(solrdir)/contrib/ ;\
 	jar -xf ../example/webapps/solr.war WEB-INF/lib/lucene-core-3.1.0.jar ; \
-        if test -d basic-lucene-libs; then rm -rf basic-lucene-libs; fi ; \
-        mv WEB-INF/lib/ basic-lucene-libs ; \
-        cp $(solrutils_dir)/schema.xml $(solrdir)/example/solr/conf/
+	if test -d basic-lucene-libs; then rm -rf basic-lucene-libs; fi ; \
+	mv WEB-INF/lib/ basic-lucene-libs ; \
+	cp $(solrutils_dir)/schema.xml $(solrdir)/example/solr/conf/
 	cp $(solrutils_dir)/solrconfig.xml $(solrdir)/example/solr/conf/
 	cd $(solrutils_dir) && \
 	javac -classpath $(CLASSPATH) -d $(solrdir)/contrib @$(solrutils_dir)/java_sources.txt && \

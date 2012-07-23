@@ -657,6 +657,10 @@ AC_CONFIG_FILES([config.nice  \
      modules/bibfigure/bin/Makefile \
      modules/bibfigure/bin/bibfigure \
      modules/bibfigure/lib/Makefile \
+     modules/bibfigure/web/Makefile \
+     modules/bibfigure/web/css/Makefile \
+     modules/bibfigure/web/js/Makefile \
+     modules/bibfigure/web/img/Makefile \
      modules/bibformat/Makefile \
      modules/bibformat/bin/Makefile \
      modules/bibformat/bin/bibreformat \

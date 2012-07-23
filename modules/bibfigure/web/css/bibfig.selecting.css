@@ -1,0 +1,228 @@
+.imageRegionPreviewBnd{
+    background-color: #bbbbbb;
+}
+
+.imageRegionPreview{
+    float: left;
+    overflow: hidden;
+    width: 0px;
+    height: 0px;
+    rotate: 30deg;
+}
+
+.imageRegionPreviewImg{
+    position: relative;
+    margin-left: 0px;
+    margin-top: 0px;
+}
+
+.mainContainerLayer{
+    width: 1037px;
+    height: 960px;
+    display: inline-block;
+    overflow: hidden;
+    border-color: black;
+    border-style: solid;
+    border-width: 1px;
+    text-align: left;
+    background-color: #cccccc;
+
+}
+
+.figureControls{
+    width: 300px;
+    height: 800px;
+    display: block;
+    background-color: #cccccc;
+    overflow-x: hidden;
+    overflow-y: auto;
+    float: left;
+}
+
+.figurePreview{
+    display: table-cell;
+    border-width: 1px;
+    border-style: dotted;
+    border-color: gray;
+}
+
+.currentFigurePreview{
+    border-width: 2px;
+    border-style: solid;
+    border-color: black;
+}
+
+.figurePlotsSelector{
+    display: block;
+    background-color: #cccccc;
+    width: 1087px;
+    overflow: hidden;
+    float:left;
+}
+
+.figureMiniaturesPlaceholder{
+    background-color: #aaaaaa;
+    display:block;
+    width: 100%;
+    height: 125px;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+
+.selectorRoot{
+    overflow: hidden;
+}
+
+.selectorRoot td {
+    margin: 0px;
+    padding: 0px;
+}
+
+.selectorRoot tr{
+    margin: 0px;
+    padding: 0px;
+}
+
+.documentPageSelector{
+    float: left;
+    clear: left;
+    display: inline-block;
+    background-color: #cccccc;
+    overflow-x: hidden;
+    overflow-y: auto;
+    white-space: nowrap;
+    height: 800px;
+    width: 175px;
+}
+
+.selectorSelectedOption{
+    border-width: 2px;
+    border-color: gray;
+    border-style: solid;
+    background-color: white;
+    position:relative;
+
+}
+
+.selectorUnselectedOption{
+    border-width: 1px;
+    border-color: gray;
+    border-style: dotted;
+    background-color: white;
+    position:relative;
+
+}
+
+.selectorHoveredOption{
+    border-color:#aaaaee;
+}
+
+.logLayer{
+    display: inline-block;
+    /*display: none;*/
+    float: left;
+    clear: left;
+}
+
+/** Storage for the rectangles drawn on top of the page image
+  */
+.pageViewRectanglesContainer{
+    display: block;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+}
+
+/** the control allowing to resize the page image */
+
+.pageViewScrollableContainer{
+    overflow: auto;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+
+}
+
+.pageView{
+    position: relative;
+    display: inline-block;
+    width: 560px;
+    height: 800px;
+
+    float:left
+}
+
+
+.pageViewZoomControls{
+    display: block;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    padding: 10px !important;
+    opacity: 0.8;
+    background: white;
+    font-size: 10pt;
+}
+
+.pageViewZoomSlider{
+    height: 200px;
+    background: #33aaff;
+}
+.pageViewRotationSlider{
+    height: 100px;
+    background: #33aaff;
+}
+
+
+.imageSelectedRectangle{
+    border-width: 1px;
+    border-style: solid;
+    border-color: red;
+}
+
+.imageSelectedRectangleCaption{
+    border-width: 1px;
+    border-style: solid;
+    border-color: blue;
+}
+
+#btnSelectFigureContent, #btnSelectFigureCaption, #btnRemoveFigure, #btnSave, #btnExtractCaption, #btnApprove{
+    width: 100%;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+#btnNewPlot{
+    font-weight: bold;
+    font-size: 16px;
+}
+
+body{
+    /*background-image: url("/img/bibfig.paper-texture.gif");*/
+    text-align: center;
+}
+
+.captionTextInput{
+    width: 100%;
+    height:100px;
+}
+
+.ui-dialog-titlebar{
+    height: 10px;
+}
+
+.ui-dialog-title{
+    font-size: 12px;
+    text-align: top;
+}
+
+.ui-dialog-content{
+    padding: 1px !important;
+}
+
+.ui-resizable-e{
+    width: 4px;
+}

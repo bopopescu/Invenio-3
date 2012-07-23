@@ -1,0 +1,31 @@
+python-poppler has two bugs which have not been fixed for a few years.
+
+document_new_from_data() arg1 must be without null bytes
+  https://bugs.launchpad.net/poppler-python/+bug/312462
+
+python-poppler doesn't close files
+  https://bugs.launchpad.net/poppler-python/+bug/316722
+
+The first bug does not allow to load binary pdf data into poppler. Due to
+automatic binding generation the data is expected to be a null terminated
+string. However, binary pdf data can contain zero bytes.
+
+The latter one also introduces memory leaks because the python object is
+free'd but the corresponding C memory is not.
+
+Download the python-poppler code from
+  https://launchpad.net/poppler-python/
+and fix both of these bugs by applying
+  poppler.defs.patch
+  poppler.override.patch
+to the corresponding files using the patch tool.
+
+Then follow the python-poppler README/INSTALL to compile and install the fixed
+python-poppler lib.
+
+NOTES:
+The patches remove the length parameter from
+poppler.document_new_from_data(pdfdata, password) as python can manage the
+length of strings containing null bytes by itself.
+
+

@@ -136,6 +136,8 @@ from invenio.bibdocfile_webinterface import WebInterfaceManageDocFilesPages, Web
 from invenio.search_engine import get_record
 from invenio.shellutils import mymkdir
 
+from invenio.bibfigure_webinterface import WebInterfacePageImages
+
 import invenio.template
 websearch_templates = invenio.template.load('websearch')
 
@@ -227,7 +229,7 @@ class WebInterfaceRecordPages(WebInterfaceDirectory):
 
     _exports = ['', 'files', 'reviews', 'comments', 'usage',
                 'references', 'export', 'citations', 'holdings', 'edit',
-                'keywords', 'multiedit', 'merge', 'plots', 'linkbacks']
+                'keywords', 'multiedit', 'merge', 'plots', 'linkbacks', 'pageimages']
 
     #_exports.extend(output_formats)
 
@@ -249,8 +251,9 @@ class WebInterfaceRecordPages(WebInterfaceDirectory):
         self.edit = WebInterfaceEditPages(self.recid)
         self.merge = WebInterfaceMergePages(self.recid)
         self.linkbacks = WebInterfaceRecordLinkbacksPages(self.recid)
-
+        self.pageimages = WebInterfacePageImages(self.recid)
         return
+
 
     def __call__(self, req, form):
         argd = wash_search_urlargd(form)
@@ -352,7 +355,6 @@ class WebInterfaceRecordRestrictedPages(WebInterfaceDirectory):
         self.edit = WebInterfaceEditPages(self.recid)
         self.merge = WebInterfaceMergePages(self.recid)
         self.linkbacks = WebInterfaceRecordLinkbacksPages(self.recid)
-
         return
 
     def __call__(self, req, form):
@@ -729,7 +731,7 @@ class WebInterfaceSearchInterfacePages(WebInterfaceDirectory):
             try:
                 if path[1] in ['', 'files', 'reviews', 'comments', 'usage',
                                'references', 'citations', 'holdings', 'edit',
-                               'keywords', 'multiedit', 'merge', 'plots', 'linkbacks']:
+                               'keywords', 'multiedit', 'merge', 'plots', 'linkbacks', 'pageimages']:
                     tab = path[1]
                 elif path[1] == 'export':
                     tab = ''

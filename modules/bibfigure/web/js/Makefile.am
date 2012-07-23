@@ -1,5 +1,5 @@
 ## This file is part of Invenio.
-## Copyright (C) 2004, 2005, 2006, 2007, 2008, 2010, 2011 CERN.
+## Copyright (C) 2011 CERN.
 ##
 ## Invenio is free software; you can redistribute it and/or
 ## modify it under the terms of the GNU General Public License as
@@ -15,17 +15,26 @@
 ## along with Invenio; if not, write to the Free Software Foundation, Inc.,
 ## 59 Temple Place, Suite 330, Boston, MA 02111-1307, USA.
 
-pylibdir = $(libdir)/python/invenio
+#imgdir=$(localstatedir)/www/img
 
-pylib_DATA = bibfigure_webinterface.py \
-	     bibfigure_captionextractor.py \
-	     bibfigure_similarity.py \
-	     bibfigure_config.py \
-	     bibfigure_template.py \
-	     bibfigure.py \
-	     bibfigure_merge.py \
-	     bibfigure_utils.py \
-	     bibfigure_api.py
+#img_DATA = mejs-invenio.css video_platform_record.css default_avatar.png
+
+jsdir=$(localstatedir)/www/js
+
+js_DATA = bibfig.windowifyer.js \
+	bibfig.selector.js \
+	bibfig.pageViewArea.js \
+	bibfig.pagesSelector.js \
+	bibfig.main.js \
+	bibfig.interface.js \
+	bibfig.imageView.js \
+	bibfig.handlers.js \
+	bibfig.graphicalOps.js \
+	bibfig.figuresSelector.js \
+	bibfig.figureControlsArea.js \
+	bibfig.data.js \
+	bibfig.buslogger.js
+
+EXTRA_DIST = $(js_DATA)
 
 CLEANFILES = *~ *.tmp *.pyc
-EXTRA_DIST = $(pylib_DATA)

@@ -1,5 +1,5 @@
 /**A class providing a plot preview with a selected scale.
-   This class does not use HTML for templating as there might 
+   This class does not use HTML for templating as there might
    be more image previews on the page*/
 
 function ImageView(eventsBus, image, container){
@@ -8,13 +8,13 @@ function ImageView(eventsBus, image, container){
     // preparing the interface
     this.element = $('<div class="imageRegionPreviewBnd"/>');
     this.imagePositioner = $('<div class="imageRegionPreview"/>');
-    var url = image? image.url: "";
+    var url = image ? image.getUrl(): "";
     this.imageElement =  $('<img src="' + url + '" class="imageRegionPreviewImg"/>');
 
     this.image = image;
-    
+
     if (container != undefined){
-	container.append(this.element);
+        container.append(this.element);
     }
 
     this.element.append(this.imagePositioner);
@@ -28,17 +28,17 @@ ImageView.prototype.getRootUIElement = function(){
 ImageView.prototype.setImage = function(image){
     this.image = image;
     if (image != undefined && image != null){
-	this.imageElement.attr("src", image.url);
+        this.imageElement.attr("src", image.getUrl());
     }
 };
 
-/** draw a selected region of the image so that it takes at maximum a givyen space 
+/** draw a selected region of the image so that it takes at maximum a givyen space
   * What is happening effectively:
   *        width1
-  *    -------------    
+  *    -------------
   *   |             |
   *   |(x1,y1)      |h       width2
-  *   |     #####   |e        -------- 
+  *   |     #####   |e        --------
   *   |     #####   |i       | (x2,y2)|h
   *   |     #####h  |g       |    ##h |e
   *   |     #####1  |h   ->  |    ##2 |i
@@ -46,7 +46,7 @@ ImageView.prototype.setImage = function(image){
   *   |      w1     |1       |    w2  |h
   *   |             |         -------- t
   *    -------------                   2
-  *  
+  *
   * (x1, y1) - coordinates of the beginning of the rectangle in the first image
   * (width1, height1) - dimensions of the original image
   * (w1, h1) - dimensions of the original image
@@ -60,21 +60,40 @@ ImageView.prototype.setImage = function(image){
   *   view - a rectangle whose width and height specify the maximal boundary
   *   extendH - should the box be extended horizontally to fill view ?
   *   extendV - should the box be extended vertically to fill view ?
-  */ 
-ImageView.prototype.draw = function(area, view, extendH, extendV ){ 
+  *   angle - rotation angle of the original image
+  */
+ImageView.prototype.draw = function(area, view, angle,  extendH, extendV ){
     extendH = extendH || true;
     extendV = extendV || false;
 
-    var scale = (area.width == 0 || area.height == 0) ? 1 
-	: area.getFittingScale(view);
-    
+    // dimensions after rotation !
+    //    var realImageWidth = Math.round( Math.cos(angle) * this.image.width this.image.width ;
+    //    var realImageHeight = this.image.height;
+    var radAngle = (angle / 180) * Math.PI;
+
+    var rb = this.image ? getRealBoundary(this.image.width, this.image.height, angle) : {
+        width: 0, 
+        height: 0
+    };
+
+    var realImgWidth = rb.width;
+    var realImgHeight = rb.height;
+
+    //    var realImgWidth  = Math.abs(this.image ? (Math.cos(radAngle) * this.image.width + Math.cos(Math.PI / 2 - radAngle) * this.image.height) : 0);
+    //    var realImgHeight = Math.abs(this.image ? (Math.cos(angle) * this.image.height + Math.cos(Math.PI / 2 - radAngle) * this.image.width) : 0);
+
+    var scale = (area.width == 0 || area.height == 0) ? 1
+    : area.getFittingScale(view);
 
     //scale is expressed as new/old
     var effWidth = Math.round(area.width * scale);
     var effHeight = Math.round(area.height * scale);
 
-    var effImgWidth = this.image ? Math.round(this.image.width * scale) : 0;
-    var effImgHeight = this.image ? Math.round(this.image.height * scale) : 0;
+    //    var effImgWidth = this.image ? Math.round((Math.cos(angle) * this.image.width + Math.cos(Math.PI / 2 - angle) * this.image.height) * scale) : 0;
+    //    var effImgHeight = this.image ? Math.round((Math.sin(angle) * this.image.width + Math.sin(Math.PI / 2 - angle) * this.image.height) * scale) : 0;
+    var effImgHeight = realImgHeight * scale;
+    var effImgWidth = realImgWidth * scale;
+
     var effPosX = Math.round(area.x * scale);
     var effPosY = Math.round(area.y * scale);
 
@@ -83,31 +102,39 @@ ImageView.prototype.draw = function(area, view, extendH, extendV ){
     var effBndHeight = extendV ? view.height : effHeight;
     var effX = extendH ? Math.round((view.width - effWidth) / 2) : 0;
     var effY = extendV ? Math.round((view.height - effHeight) / 2) : 0;
-    
+
     this.element.css({
-	display: "inline-block",
-	width: effBndWidth + "px",
-	height: effBndHeight + "px",
-	maxWidth: effBndWidth + "px",
-	maxHeight: effBndHeight + "px",
-	overflow: "hidden"
-    });
-    
-    this.imagePositioner.css({
-	display: "inline-block",
-	width: effWidth + "px",
-	height: effHeight + "px",
-	position: "relative",
-	overflow: "hidden",
-	top: effY + "px",
-	left: effX + "px"
+        display: "inline-block",
+        width: effBndWidth + "px",
+        height: effBndHeight + "px",
+        maxWidth: effBndWidth + "px",
+        maxHeight: effBndHeight + "px",
+        overflow: "hidden"
     });
 
-    this.imageElement.css({
+    this.imagePositioner.css({
+        display: "inline-block",
+        width: effWidth + "px",
+        height: effHeight + "px",
+        position: "relative",
+        overflow: "hidden",
+        top: effY + "px",
+        left: effX + "px"
+    });
+
+    var iw = this.image ? this.image.width: 0;
+    var ih = this.image ? this.image.height: 0;
+
+    var trans = getTransformedMargin(angle, scale, iw, ih);
+    //    this.imageElement.css(buildTransformedCSS(trans.x, trans.y, scale, angle));
+
+    this.imageElement.css(buildTransformedCSS(trans.x - effPosX, trans.y - effPosY, scale, angle));
+//    this.imageElement.css(buildTransformedCSS(-effPosX,  -effPosY, scale, angle));
+/*    this.imageElement.css({
 	width: effImgWidth + "px",
 	height: effImgHeight + "px",
 	marginLeft: "-" + effPosX + "px",
 	marginTop: "-" + effPosY + "px"
-    });     
+    });*/
 };
 

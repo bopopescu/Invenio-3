@@ -1,0 +1,27 @@
+
+.ui-windowify-controltoolbar{
+    width: 100%;
+    overflow: hidden;
+}
+
+.ui-windowify-windowedcontent{
+    overflow: auto !important;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.ui-windowify-hiddencontent{
+    display: none !important;
+}
+
+.ui-pageviewarea-mainelement{
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.ui-pageviewarea-windowified{
+    overflow: hidden;
+    width: 100% !important;
+    height: 100% !important;
+}

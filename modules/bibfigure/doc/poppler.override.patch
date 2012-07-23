@@ -1,0 +1,30 @@
+--- poppler.override	2009-09-26 20:31:23.000000000 +0200
++++ poppler.override.fix	2012-07-19 15:12:08.000000000 +0200
+@@ -600,3 +600,27 @@
+     return PycairoSurface_FromSurface(surface, NULL, NULL);
+ #endif
+ }
++%%
++override poppler_document_new_from_data kwargs
++static PyObject *
++_wrap_poppler_document_new_from_data(PyObject *self, PyObject *args, PyObject *kwargs)
++{
++    static char *kwlist[] = { "data", "password", NULL };
++    char *data, *password;
++    int length;
++    PopplerDocument *ret;
++    GError *error = NULL;
++    PyObject *py_ret;
++
++    if (!PyArg_ParseTupleAndKeywords(args, kwargs,"s#s:document_new_from_data", kwlist, &data, &length, &password))
++        return NULL;
++
++    ret = poppler_document_new_from_data(data, length, password, &error);
++
++    if (pyg_error_check(&error))
++        return NULL;
++    py_ret = pygobject_new((GObject *)ret);
++    if (ret != NULL)
++        g_object_unref(ret);
++    return py_ret;
++}
