@@ -55,6 +55,7 @@ SUBDIRS = bibauthorid \
           webstat \
           webstyle \
           websubmit \
-          docextract
+          docextract \
+          bibfigure
 
 CLEANFILES = *~

@@ -38,6 +38,8 @@ import tempfile
 import urlparse
 import random
 import traceback
+import codecs
+import subprocess
 
 from invenio.config import \
      CFG_BINDIR, \
@@ -50,6 +52,7 @@ from invenio.config import \
      CFG_OAI_FAILED_HARVESTING_EMAILS_ADMIN, \
      CFG_SITE_SUPPORT_EMAIL, \
      CFG_LOGDIR
+
 from invenio.oai_harvest_config import InvenioOAIHarvestWarning
 from invenio.dbquery import deserialize_via_marshal
 from invenio.bibtask import \
@@ -70,7 +73,7 @@ from invenio import oai_harvest_getter
 from invenio.errorlib import register_exception
 from invenio.plotextractor_getter import harvest_single, make_single_directory
 from invenio.plotextractor_converter import untar
-from invenio.plotextractor import process_single, get_defaults
+from invenio.plotextractor import process_pdf, process_single, get_defaults
 from invenio.shellutils import run_shell_command, Timeout
 from invenio.bibedit_utils import record_find_matching_fields
 from invenio.bibcatalog import bibcatalog_system
@@ -88,9 +91,15 @@ from invenio.oai_harvest_utils import get_nb_records_in_file, \
                                       generate_harvest_report
 from invenio.webuser import email_valid_p
 from invenio.mailutils import send_email
-
 import invenio.template
+from invenio.bibfigure_merge import merging_latex_pdf, \
+                                    create_MARCXML, \
+                                    getFigureVectors
+
+
+
 oaiharvest_templates = invenio.template.load('oai_harvest')
+
 
 ## precompile some often-used regexp for speed reasons:
 REGEXP_OAI_ID = re.compile("<identifier.*?>(.*?)<\/identifier>", re.DOTALL)
@@ -166,6 +175,7 @@ def task_run_core():
         # Retrieve all OAI IDs and set active list
         harvested_identifier_list = collect_identifiers(harvested_files_list)
         active_files_list = harvested_files_list
+
         if len(active_files_list) != len(harvested_identifier_list):
             # Harvested files and its identifiers are 'out of sync', abort harvest
             write_message("Harvested files miss identifiers for %s" % (repository["name"],))
@@ -216,6 +226,7 @@ def task_run_core():
             if error_code:
                 error_happened_p = error_code
                 continue
+
             # print stats:
             for active_files in active_files_list:
                 write_message("File %s contains %i records." % \
@@ -758,6 +769,7 @@ def call_bibconvert(config, harvestpath, convertpath):
                           args=(CFG_BINDIR, config, harvestpath), filename_out=convertpath)
     return (exitcode, cmd_stderr)
 
+
 def call_plotextractor(active_file, extracted_file, harvested_identifier_list, \
                        downloaded_files, plotextractor_types, source_id):
     """
@@ -776,8 +788,11 @@ def call_plotextractor(active_file, extracted_file, harvested_identifier_list, \
     """
     all_err_msg = []
     exitcode = 0
+    flag = 0
+
+    plotextracted_paths = []
     # Read in active file
-    recs_fd = open(active_file, 'r')
+    recs_fd = codecs.open(active_file, encoding="utf-8", mode='r')
     records = recs_fd.read()
     recs_fd.close()
 
@@ -787,17 +802,30 @@ def call_plotextractor(active_file, extracted_file, harvested_identifier_list, \
     updated_xml.append('<collection>')
     i = 0
     for record_xml in record_xmls:
+        flag += 1
         current_exitcode = 0
         identifier = harvested_identifier_list[i]
         i += 1
         if identifier not in downloaded_files:
             downloaded_files[identifier] = {}
-        updated_xml.append("<record>")
+
+        updated_xml.append(u'<record>')
         updated_xml.append(record_xml)
-        if not oaiharvest_templates.tmpl_should_process_record_with_mode(record_xml, 'p', source_id):
-            # We skip this record
-            updated_xml.append("</record>")
-            continue
+# Piotr : If errors appear, consider resurecting this code:
+#        if not oaiharvest_templates.tmpl_should_process_record_with_mode(record_xml, 'p', source_id):
+#            # We skip this record
+#            updated_xml.append("</record>")
+#            continue
+
+        updated_xml.append(u'</record>')
+        final_output = ""
+        param1 = ""
+        param2 = ""
+
+        # first for latex, second for pdf
+        plotextracted_paths=["",""]
+
+# end of the previous merge conflict
         if 'latex' in plotextractor_types:
             # Run LaTeX plotextractor
             if "tarball" not in downloaded_files[identifier]:
@@ -812,23 +840,82 @@ def call_plotextractor(active_file, extracted_file, harvested_identifier_list, \
                 if plotextracted_xml_path != None:
                     # We store the path to the directory the tarball contents live
                     downloaded_files[identifier]["tarball-extracted"] = os.path.split(plotextracted_xml_path)[0]
-                    # Read and grab MARCXML from plotextractor run
-                    plotsxml_fd = open(plotextracted_xml_path, 'r')
-                    plotextracted_xml = plotsxml_fd.read()
-                    plotsxml_fd.close()
-                    re_list = REGEXP_RECORD.findall(plotextracted_xml)
-                    if re_list != []:
-                        # Add final FFT info from LaTeX plotextractor to record.
-                        updated_xml.append(re_list[0])
-        updated_xml.append("</record>")
-    updated_xml.append('</collection>')
+                    plotextracted_paths[0] = plotextracted_xml_path
+
+        if 'pdf' in plotextractor_types:
+            if "pdf" not in downloaded_files[identifier]:
+                current_exitcode, err_msg, dummy, pdf = \
+                            plotextractor_harvest(identifier, active_file, selection=["pdf"])
+                if current_exitcode != 0:
+                    exitcode = current_exitcode
+                    all_err_msg.append(err_msg)
+                else:
+                    downloaded_files[identifier]["pdf"] = pdf
+                    #write_message("%s\n"%downloaded_files[identifier]["pdf"])
+            # run pdf extractor and get the path for the extracted.json file
+            if current_exitcode == 0:
+                (code, message, plotextracted_pdf_path, pdf_to_marcxml_path) = process_pdf(downloaded_files[identifier]["pdf"], identifier)
+                if str(code) != "0":
+                    # write message into the log file
+                    # Open the log file in order to write the errors it might appear
+                    file_desc = open(CFG_LOGDIR + "/plots_extraction_history.err", "a")
+                    file_desc.write(message + "\n")
+                    file_desc.close()
+                if plotextracted_pdf_path != None:
+                    downloaded_files[identifier]["pdf-extracted"] = os.path.split(plotextracted_pdf_path)[0]
+                    #write_message("%s\n"%downloaded_files[identifier]["pdf-extracted"])
+                    plotextracted_paths[1] = plotextracted_pdf_path
+
+        #check if the files were extracted
+        if (plotextracted_paths[0] != ""):
+            # we have the first path of extracted file and we delete two tails so that the remaining path will be the identifier path
+            extracted = os.path.split(os.path.split(plotextracted_paths[0])[0])[0]
+            name_tail = os.path.split(extracted)[1]
+            current_path = os.getcwd()
+            os.chdir(extracted)
+            extracted = extracted + "/" + name_tail + "_merge"
+            os.mkdir(extracted)
+            os.chdir(current_path)
+        elif (plotextracted_paths[1] != ""):
+            extracted = os.path.split(os.path.split(plotextracted_paths[1])[0])[0]
+            name_tail = os.path.split(extracted)[1]
+            current_path = os.getcwd()
+            os.chdir(extracted)
+            extracted = extracted + "/" + name_tail + "_merge"
+            os.mkdir(extracted)
+            os.chdir(current_path)
+        elif (plotextracted_paths[0] == "" and plotextracted_paths[1] == ""):
+            extracted = downloaded_files[identifier]['tarball']
+            extracted = os.path.split(extracted)[0]
+            #name_tail = os.path.split(extracted)[1]
+            #extracted = extracted + "/" + name_tail + "_merge"
+        (code, message, outputVector, marc_path) = merging_latex_pdf(plotextracted_paths[0], plotextracted_paths[1], identifier, extracted)
+        # make empty list
+        plotextracted_paths=[]
+        plots_fd = codecs.open(marc_path, encoding="utf-8", mode="r")
+        marcxml_content = plots_fd.read()
+        plots_fd.close()
+        re_list = REGEXP_RECORD.findall(marcxml_content)
+        if re_list != []:
+            for rec in re_list:
+                updated_xml.append("<record>")
+                updated_xml.append(rec)
+                updated_xml.append("</record>")
+            # Add final FFT info from LaTeX plotextractor to record.
+            #updated_xml.append(re_list[0])
+
+        #updated_xml.append("</record>")
+    updated_xml.append(u'</collection>')
+
     # Write to file
-    file_fd = open(extracted_file, 'w')
-    file_fd.write("\n".join(updated_xml))
+    file_fd = codecs.open(extracted_file, encoding="utf-8", mode="w")
+    #file_fd = open(extracted_file, 'w')
+    file_fd.write(u'\n'.join(updated_xml))
     file_fd.close()
     if len(all_err_msg) > 0:
         return exitcode, "\n".join(all_err_msg)
     return exitcode, ""
+
 
 def call_refextract(active_file, extracted_file, harvested_identifier_list,
                     downloaded_files, arguments, source_id):
@@ -1035,19 +1122,20 @@ def call_authorlist_extract(active_file, extracted_file, harvested_identifier_li
         return exitcode, "\n".join(all_err_msg)
     return exitcode, ""
 
+
+
 def call_fulltext(active_file, extracted_file, harvested_identifier_list,
                   downloaded_files, doctype, source_id):
     """
-    Function that calls attach FFT tag for a downloaded file to harvested records.
+    Function that calls attach FFT tag for full-text pdf to harvested records.
     It will download the fulltext-pdf for each identifier if necessary.
 
     @param active_file: path to the currently processed file
     @param extracted_file: path to the file where the final results will be saved
     @param harvested_identifier_list: list of OAI identifiers for this active_file
     @param downloaded_files: dict of identifier -> dict mappings for downloaded material.
-    @param doctype: doctype of downloaded file in BibDocFile
+    @param doctype: doctype used
     @param source_id: the repository identifier
-
     @return: exitcode and any error messages as: (exitcode, err_msg)
     """
     all_err_msg = []
@@ -1059,35 +1147,63 @@ def call_fulltext(active_file, extracted_file, harvested_identifier_list,
 
     # Find all records
     record_xmls = REGEXP_RECORD.findall(records)
+
     updated_xml = ['<?xml version="1.0" encoding="UTF-8"?>']
     updated_xml.append('<collection>')
     i = 0
     for record_xml in record_xmls:
-        current_exitcode = 0
-        identifier = harvested_identifier_list[i]
-        i += 1
-        if identifier not in downloaded_files:
-            downloaded_files[identifier] = {}
+        #write_message("a record in the list of records of an article(initial and figures)")
         updated_xml.append("<record>")
         updated_xml.append(record_xml)
-        if not oaiharvest_templates.tmpl_should_process_record_with_mode(record_xml, 'p', source_id):
-            # We skip this record
-            updated_xml.append("</record>")
-            continue
-        if "pdf" not in downloaded_files[identifier]:
-            current_exitcode, err_msg, dummy, pdf = \
-                        plotextractor_harvest(identifier, active_file, selection=["pdf"])
-            if current_exitcode != 0:
-                all_err_msg.append(err_msg)
-            else:
-                downloaded_files[identifier]["pdf"] = pdf
-        if current_exitcode == 0:
-            fulltext_xml = """  <datafield tag="FFT" ind1=" " ind2=" ">
-    <subfield code="a">%(url)s</subfield>
-    <subfield code="t">%(doctype)s</subfield>
-  </datafield>""" % {'url': downloaded_files[identifier]["pdf"],
-                     'doctype': doctype}
-            updated_xml.append(fulltext_xml)
+# Piotr: Another merge conflict to consider
+#        if not oaiharvest_templates.tmpl_should_process_record_with_mode(record_xml, 'p', source_id):
+#            # We skip this record
+#            updated_xml.append("</record>")
+#            continue
+#        if "pdf" not in downloaded_files[identifier]:
+#            current_exitcode, err_msg, dummy, pdf = \
+#                        plotextractor_harvest(identifier, active_file, selection=["pdf"])
+#            if current_exitcode != 0:
+#                all_err_msg.append(err_msg)
+#            else:
+#                downloaded_files[identifier]["pdf"] = pdf
+#        if current_exitcode == 0:
+#            fulltext_xml = """  <datafield tag="FFT" ind1=" " ind2=" ">
+#    <subfield code="a">%(url)s</subfield>
+#    <subfield code="t">%(doctype)s</subfield>
+#  </datafield>""" % {'url': downloaded_files[identifier]["pdf"],
+#                     'doctype': doctype}
+#            updated_xml.append(fulltext_xml)
+        #if "tag=\"003\"" in record_xml:
+        #if "<author>" in record_xml:
+        if( 1 == 1):
+            identifier = harvested_identifier_list[i]
+            if identifier not in downloaded_files:
+                downloaded_files[identifier] = {}
+            current_exitcode = 0
+            i += 1
+            if "pdf" not in downloaded_files[identifier]:
+                current_exitcode, err_msg, dummy, pdf = \
+                            plotextractor_harvest(identifier, active_file, selection=["pdf"])
+                if current_exitcode != 0:
+                    exitcode = current_exitcode
+                    all_err_msg.append(err_msg)
+                else:
+                    downloaded_files[identifier]["pdf"] = pdf
+            if current_exitcode == 0:
+                fulltext_xml = """    <datafield tag="FFT" ind1=" " ind2=" ">
+      <subfield code="a">%(url)s</subfield>
+      <subfield code="t">%(doctype)s</subfield>
+      <subfield code="i">%(identifier)s</subfield>
+      <subfield code="v">%(version)s</subfield>
+    </datafield>""" % {'url': downloaded_files[identifier]["pdf"],
+                         'doctype': doctype,
+                         'identifier':'TMP:'+identifier,
+                         'version':'TMP:'+identifier+':v'}
+                updated_xml.append(fulltext_xml)
+
+#end of the previous merge
+
         updated_xml.append("</record>")
     updated_xml.append('</collection>')
     # Write to file
