@@ -1036,7 +1036,7 @@ def call_authorlist_extract(active_file, extracted_file, harvested_identifier_li
     return exitcode, ""
 
 def call_fulltext(active_file, extracted_file, harvested_identifier_list,
-                  downloaded_files, doctype="", source_id):
+                  downloaded_files, doctype, source_id):
     """
     Function that calls attach FFT tag for a downloaded file to harvested records.
     It will download the fulltext-pdf for each identifier if necessary.
