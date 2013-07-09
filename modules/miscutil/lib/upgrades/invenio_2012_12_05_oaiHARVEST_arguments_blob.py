@@ -45,8 +45,8 @@ def do_upgrade():
             arguments['c_cfg-file'] = row['bibconvertcfgfile']
             arguments['f_filter-file'] = row['bibfilterprogram']
             run_sql("UPDATE oaiHARVEST set arguments=%s WHERE id=%s", (serialize_via_marshal(arguments), row['id']))
-            run_sql("ALTER TABLE oaiHARVEST DROP COLUMN bibconvertcfgfile")
-            run_sql("ALTER TABLE oaiHARVEST DROP COLUMN bibfilterprogram")
+        run_sql("ALTER TABLE oaiHARVEST DROP COLUMN bibconvertcfgfile")
+        run_sql("ALTER TABLE oaiHARVEST DROP COLUMN bibfilterprogram")
 
 
 def estimate():
