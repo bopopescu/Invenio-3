@@ -4329,4 +4329,15 @@ INSERT INTO upgrade (upgrade, applied) VALUES ('invenio_2013_02_01_oaiREPOSITORY
 INSERT INTO upgrade (upgrade, applied) VALUES ('invenio_2013_03_07_crcILLREQUEST_overdue_letter',NOW());
 INSERT INTO upgrade (upgrade, applied) VALUES ('invenio_2013_01_12_bibrec_master_format',NOW());
 
+
+-- tables for the manual figures extractor
+
+CREATE TABLE IF NOT EXISTS bibfigure_approvalrequests (
+  id mediumint(8) unsigned NOT NULL auto_increment,
+  recid mediumint(8) unsigned NOT NULL,
+  jsondata TEXT,
+  PRIMARY KEY (id)
+) ENGINE=MyISAM;
+
+
 -- end of file

@@ -28,6 +28,25 @@ Image.prototype.getUrlHD = function(){
     return this.url + "/" + (2.*this.width);
 }
 
+
+
+/**
+ * A static image - we do not manage the width and height
+ */
+
+function StaticImage(url){
+    this.url = url;
+}
+
+/**
+ * returns the url with the original width
+ */
+StaticImage.prototype.getUrl = function(){
+    return this.url;
+}
+
+
+
 /**
    angle -> angle under which the rectangle is paralel to the x,y axis with x,y equal to given parameters
  */
@@ -58,14 +77,14 @@ Rectangle.prototype.getFittingScale = function(view){
 
 Rectangle.prototype.copy = function(){
     return new Rectangle(this.x, this.y, this.width, this.height, this.angle);
-    
+
 }
 
 
 /***
  * Prototype for boundary of caption or figure
  * @property page page number the figure is on (starting from 0)
- * @property rectangle rectangle of the figure/caption on the page  
+ * @property rectangle rectangle of the figure/caption on the page
  */
 function Boundary(){
     this.id = "Boundary" + getNextIdentifier();
@@ -103,18 +122,18 @@ function Figure(pdfDocument, page){
 
 Figure.prototype.getFigurePageResolution = function(){
     return {
-        "x": this.figureBoundary.getPage().image.width, 
+        "x": this.figureBoundary.getPage().image.width,
         "y": this.figureBoundary.getPage().image.height
-    } 
-    
+    }
+
 }
 
 Figure.prototype.getCaptionPageResolution = function(){
     return {
-        "x": this.captionBoundary.getPage().image.width, 
+        "x": this.captionBoundary.getPage().image.width,
         "y": this.captionBoundary.getPage().image.height
-    } 
-    
+    }
+
 }
 
 Figure.prototype.getCaptionPageResolutionString = function(){
@@ -187,7 +206,7 @@ Page.prototype.getNumber = function(){
 }
 
 /***
- * Object that represents the rendered PDF 
+ * Object that represents the rendered PDF
  * @property pages Collection of pages of the current document
  * @property figures Collection of figures in the current document
  */
@@ -265,11 +284,11 @@ PdfDocument.prototype.getFiguresJSON = function(){
     for(j = 0; j < figures.length; j++){
         var fig = figures[j];
         var jfig = {}
-        
+
         figBoundary = fig.getFigureBoundary()
         captBoundary = fig.getCaptionBoundary()
         jfig["location"] = {}
-        
+
         jfig["location"]["boundary"] = {
             "x": figBoundary.rectangle.x,
             "y": figBoundary.rectangle.y,
@@ -279,8 +298,8 @@ PdfDocument.prototype.getFiguresJSON = function(){
             };
         jfig["location"]["page_num"] = figBoundary.getPage().getNumber();
         jfig["location"]["page_resolution"] = {"width": figBoundary.getPage().image.width, "height": figBoundary.getPage().image.height}
-        
-            
+
+
         jfig["caption_location"] = {}
         jfig["caption_location"]["boundary"] = {
             "x": captBoundary.rectangle.x,

@@ -17,7 +17,7 @@
 
 imgdir=$(localstatedir)/www/img
 
-img_DATA = bibfig.paper-texture.gif
+img_DATA = bibfig.paper-texture.gif noplot.png
 
 EXTRA_DIST = $(img_DATA)
 

@@ -33,7 +33,7 @@ function FigureControlsArea(eventsBus, pdfDocument, imageArea){
     this.btnSelectFigureContent = $("#btnSelectFigureContent");
     this.btnSelectCaption = $("#btnSelectFigureCaption");
     this.btnRemoveFigure = $("#btnRemoveFigure");
-    
+
     // reference to save button
     this.btnSave = $("#btnSave");
     // bind to click handler
@@ -46,18 +46,18 @@ function FigureControlsArea(eventsBus, pdfDocument, imageArea){
     this.btnSave.bind(
         "click",
         prepareBoundHandler(this.onBtnApproveClicked, this));
-        
+
     // reference to save button
     this.btnExtractCaption = $("#btnExtractCaption");
     // bind to click handler
     this.btnExtractCaption.bind(
         "click",
         prepareBoundHandler(this.onBtnExtractCaptionClicked, this));
-        
+
     this.txtCaptionText.bind(
         "change",
         prepareBoundHandler(this.onTxtCaptionTextChanged, this));
-        
+
     // attaching events
     this.btnSelectFigureContent.bind(
         "click",
@@ -69,14 +69,14 @@ function FigureControlsArea(eventsBus, pdfDocument, imageArea){
     this.btnRemoveFigure.bind(
         "click",
         prepareBoundHandler(this.onBtnRemoveFigureClicked, this));
-    
+
     // reacting to a figure change
     this.eventsBus.registerHandler(Presenter.setFigure, this.id,
         function(subjectId, figure){
             this.setFigure(figure);
         }, this);
-    this.noFigureImage = new Image("data/noplot.png", 250, 183);
-         
+    this.noFigureImage = new StaticImage("/img/noplot.png");
+
 }
 
 
@@ -150,13 +150,13 @@ FigureControlsArea.prototype.refreshInterface = function(){
         this.enableInterface();
         image = this.currentFigure.getFigureBoundary().page.image;
         captionImage = this.currentFigure.getCaptionBoundary().page.image;
-        
+
         boundaryString = this.currentFigure.getFigureBoundary().rectangle.toString();
         captionBoundaryString = this.currentFigure.getCaptionBoundary().rectangle.toString();
-        
+
         boundary = this.currentFigure.getFigureBoundary().rectangle;
         boundaryCaption = this.currentFigure.getCaptionBoundary().rectangle;
-        
+
         figureAngle = this.currentFigure.getFigureBoundary().rectangle.angle;
         captionAngle = this.currentFigure.getCaptionBoundary().rectangle.angle;
     }
@@ -171,7 +171,7 @@ FigureControlsArea.prototype.refreshInterface = function(){
     this.captionPreview.draw(
         boundaryCaption,
         new Rectangle(0, 0, 300, 300), captionAngle, true, false);
-    
+
     if(this.currentFigure != null){
         this.lblFigureBoundary.html(boundaryString);
         this.lblCaptionBoundary.html(captionBoundaryString);
@@ -205,15 +205,15 @@ FigureControlsArea.prototype.onBtnApproveClicked = function(){
 };
 
 /***
- * saves the caption to the current figure if it has been changed. 
- * 
- */ 
+ * saves the caption to the current figure if it has been changed.
+ *
+ */
 FigureControlsArea.prototype.onTxtCaptionTextChanged = function(){
     if(this.currentFigure != null && this.currentFigure != undefined){
         this.currentFigure.setCaption(this.txtCaptionText.val());
         this.refreshInterface();
     }
-    
+
 /*
     this.eventsBus.raise(FigureControlsArea.onTxtCaptionTextChanged,
         this.id, [this.currentFigure]);

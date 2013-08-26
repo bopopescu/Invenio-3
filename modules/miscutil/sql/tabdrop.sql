@@ -489,4 +489,6 @@ DROP TABLE IF EXISTS wapCACHE;
 DROP TABLE IF EXISTS seqSTORE;
 DROP TABLE IF EXISTS upgrade;
 DROP TABLE IF EXISTS goto;
+DROP TABLE IF EXISTS bibfigure_approvalrequests;
+
 -- end of file

@@ -208,9 +208,9 @@ install-jquery-plugins:
 	mkdir -p imgareaselect && \
 	mv jquery.imgareaselect-0.9.8/scripts/jquery.imgareaselect.min.js ./imgareaselect/ && \
 	mv jquery.imgareaselect-0.9.8/css/* ./imgareaselect && \
-	rm -r jquery.imgareaselect-0.9.8/ ) && \
-	@echo "***********************************************************" && \
-	@echo "** The jQuery plugins were successfully installed.       **" && \
+	rm -r jquery.imgareaselect-0.9.8/ )
+	@echo "***********************************************************"
+	@echo "** The jQuery plugins were successfully installed.       **"
 	@echo "***********************************************************"
 
 uninstall-jquery-plugins:

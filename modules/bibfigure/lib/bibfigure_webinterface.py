@@ -237,7 +237,7 @@ class WebInterfacePageImages(WebInterfaceDirectory):
         json_response.update({'pages': doc.get_n_pages()})
 
         if(approvalid > 0):
-            res = run_sql("SELECT recid, jsondata FROM  bibfigure_approvalrequests WHERE approvalid = '%s'", (approvalid, ))
+            res = run_sql("SELECT recid, jsondata FROM  bibfigure_approvalrequests WHERE id = '%s'", (approvalid, ))
 
             if(len(res) == 1):
                 recid, jsondata = res[0]
@@ -381,7 +381,7 @@ class WebInterfacePageImages(WebInterfaceDirectory):
         uid = getUid(req)
         #_ = gettext_set_language(ln)
         body = "<table>"
-        res = run_sql("SELECT approvalid, recid, jsondata FROM  bibfigure_approvalrequests")
+        res = run_sql("SELECT id, recid, jsondata FROM  bibfigure_approvalrequests")
         for row in res:
             approvalid, recid, jsondata = row
 
@@ -424,7 +424,7 @@ class WebInterfacePageImages(WebInterfaceDirectory):
         # get the updated figures from the approval page
         # TODO: instead of loading it from the database, it should be loaded from the website again (like save button),
         # as the approver might change some.
-        res = run_sql("SELECT approvalid, recid, jsondata FROM  bibfigure_approvalrequests WHERE approvalid = %s", (str(approvalid), ))
+        res = run_sql("SELECT id, recid, jsondata FROM  bibfigure_approvalrequests WHERE id = %s", (str(approvalid), ))
         approvalid, recid, jsondata_string = res[0]
         json_data_unicode = json.loads(jsondata_string)
         json_data = json_unicode_to_utf8(json_data_unicode)
