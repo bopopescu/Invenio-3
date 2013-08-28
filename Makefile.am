@@ -315,15 +315,9 @@ install-solrutils:
 	cd $(prefix)/lib && \
 	if test -d apache-solr*; then echo A solr directory already exists in `pwd` . \
 	Please remove it manually, if you are sure it is not needed; exit 2; fi ; \
-<<<<<<< HEAD
         if test -f apache-solr*; then echo solr tarball already exists in `pwd` . \
         Please remove it manually.; exit 2; fi ; \
 	wget http://archive.apache.org/dist/lucene/solr/3.1.0/apache-solr-3.1.0.tgz && \
-=======
-	if test -f apache-solr*; then echo solr tarball already exists in `pwd` . \
-	Please remove it manually.; exit 2; fi ; \
-	wget http://www.apache.org/dist//lucene/solr/3.1.0/apache-solr-3.1.0.tgz && \
->>>>>>> bba98cb... BibFigure: The manual fiugres extractor backend and frontend improvements
 	tar -xzf apache-solr-3.1.0.tgz && \
 	rm apache-solr-3.1.0.tgz
 	cd $(solrdir)/contrib/ ;\
